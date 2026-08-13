@@ -1,0 +1,9 @@
+{
+  "game": {
+    "height": 600,
+    "width": 800
+  },
+  "clicker": {
+    "size": 200
+  }
+}

@@ -1,9 +1,13 @@
 {
   "game": {
-    "height": 600,
-    "width": 800
+    "height": 800,
+    "width": 600
   },
   "clicker": {
-    "size": 200
+    "size": 250
+  },
+  "colors": {
+    "backgound": "#f0f0f0",
+    "shop_header": "0xaaaaaa"
   }
 }

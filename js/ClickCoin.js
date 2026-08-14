@@ -1,8 +1,9 @@
 import config from "./Config.js";
 import { Drawable } from "./Drawable.js";
+import { LocalStorageManager } from "./Managers/LocalStorageManager.js";
 
 export class ClickCoin extends Drawable {
-  constructor(scene, graphics) {
+  constructor(scene, graphics, value) {
     super(scene, graphics);
 
     const circle = new Phaser.Geom.Circle(
@@ -20,10 +21,10 @@ export class ClickCoin extends Drawable {
     this.y = point.y;
 
     this.text = scene.add
-      .text(this.x, this.y, "+1D", {
+      .text(this.x, this.y, `+${value}`, {
         fontSize: "32px",
         fill: "#ffffff",
-        fontFamily: "doge_font",
+        fontFamily: "doodle_font",
         resolution: 2,
         fontStyle: "bold",
         stroke: "#000000",

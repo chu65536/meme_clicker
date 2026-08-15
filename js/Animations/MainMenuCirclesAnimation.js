@@ -1,6 +1,6 @@
 import config from "../Config.js";
 
-export class MainMenuCircleAnimation {
+export class FadingCirclesAnimation {
   constructor() {
     this.circles = [];
     this.count = 10;
@@ -11,17 +11,15 @@ export class MainMenuCircleAnimation {
     const y = config.game.height / 2;
     for (let i = 0; i < this.count; i += 1) {
       const r = (i * config.game.width) / 2 / this.count;
-      const randomColor = Math.floor(Math.random() * 0xffffff);
 
       const current = { x: x, y: y, r: r };
       this.circles.push(current);
     }
   }
-
   anim(graphics) {
     this.circles.forEach((circle) => {
       const opacity = 1 - circle.r / (config.game.width / 2);
-      graphics.lineStyle(this.thickness / 2, 0xffa500, opacity);
+      graphics.lineStyle(this.thickness / 2, 0xffef00, opacity);
       graphics.strokeCircle(circle.x, circle.y, circle.r);
       circle.r += this.speed;
       if (circle.r >= config.game.width / 2) {

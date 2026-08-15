@@ -1,17 +1,17 @@
 import { ClickCoin } from "./ClickCoin.js";
 import config from "./Config.js";
-import { Drawable } from "./Drawable.js";
 import { LocalStorageManager } from "./Managers/LocalStorageManager.js";
 import { SoundManager } from "./Managers/SoundManager.js";
 
-export class MainClicker extends Drawable {
+export class MainClicker {
   constructor(scene, graphics) {
-    super(scene, graphics);
+    this.scene = scene;
+    this.graphics = graphics;
 
     this.x = config.game.width / 2;
     this.y = config.game.height / 2;
     this.size = config.clicker.size;
-    this.sprite = scene.add.sprite(this.x, this.y, "click_button");
+    this.sprite = scene.add.sprite(this.x, this.y, "clicker");
     this.scale = this.size / this.sprite.width;
 
     this.sprite.setScale(this.scale);
@@ -21,11 +21,7 @@ export class MainClicker extends Drawable {
   }
 
   #setupEvents() {
-    this.sprite.on("pointerdown", () => {
-      this.sprite.setTint(0xaaaaaa);
-    });
     this.sprite.on("pointerup", () => {
-      this.sprite.setTint(0xffffff);
       this.click();
     });
 
@@ -41,7 +37,7 @@ export class MainClicker extends Drawable {
   click() {
     SoundManager.playSound("click");
     const gameState = LocalStorageManager.loadGameState();
-    new ClickCoin(this.scene, this.graphics, gameState.coinsPerClick);
+    new ClickCoin(this.scene, gameState.coinsPerClick);
     gameState.coins += gameState.coinsPerClick;
     LocalStorageManager.updateGameState(gameState);
   }

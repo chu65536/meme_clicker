@@ -31,4 +31,9 @@ export class LocalStorageManager {
   static updateGameState(data) {
     this.#saveData("gameState", data);
   }
+
+  static getItemData(item) {
+    const gameState = LocalStorageManager.loadGameState();
+    return gameState.items.find((it) => it.id == item.id);;
+  }
 }

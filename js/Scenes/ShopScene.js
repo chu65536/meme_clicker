@@ -1,165 +1,121 @@
 import { LocalStorageManager } from "../Managers/LocalStorageManager.js";
 import config from "../Config.js";
-import { Buttton } from "../UI/Button.js";
-import { PassiveIncome } from "../PassiveIncome.js";
-
-const UPGRADE_DEFS = [
-  {
-    id: "hands",
-    name: "Strong Hands",
-    description: "+1 coins per click",
-    icon: "fist",
-    baseCost: 25,
-    costMultiplier: 1.15,
-    effect: (state) => {
-      state.coinsPerClick += 1;
-    },
-  },
-  {
-    id: "robot",
-    name: "Robot Miner",
-    description: "+1 coins per second",
-    icon: "robot",
-    baseCost: 50,
-    costMultiplier: 1.18,
-    effect: (state) => {
-      state.coinsPerSecond += 1;
-    },
-  },
-  {
-    id: "chainsaw",
-    name: "Chainsaw",
-    description: "+5 coins per second",
-    icon: "chainsaw",
-    baseCost: 200,
-    costMultiplier: 1.2,
-    effect: (state) => {
-      state.coinsPerSecond += 5;
-    },
-  },
-  {
-    id: "gun",
-    name: "Gun",
-    description: "+3 coins per click",
-    icon: "gun",
-    baseCost: 400,
-    costMultiplier: 1.22,
-    effect: (state) => {
-      state.coinsPerClick += 3;
-    },
-  },
-  {
-    id: "factory",
-    name: "Factory",
-    description: "+25 coins per second",
-    icon: "factory",
-    baseCost: 1000,
-    costMultiplier: 1.25,
-    effect: (state) => {
-      state.coinsPerSecond += 25;
-    },
-  },
-  {
-    id: "trollface",
-    name: "Huh?",
-    description: "x2 coins per click",
-    icon: "troll",
-    baseCost: 2500,
-    costMultiplier: 1.3,
-    effect: (state) => {
-      state.coinsPerClick *= 2;
-    },
-  },
-];
+import { Button } from "../UI/Button.js";
+import { ShopList } from "../ShopList.js";
+import { SHOP_ITEMS } from "../ShopItems.js";
+import { Utils } from "../Utils/Utils.js";
 
 export class ShopScene extends Phaser.Scene {
   constructor() {
     super("ShopScene");
     this.rowHeight = 110;
     this.rowPadding = 12;
-    this.shop_header_height = 100;
+    this.shopHeaderHeight = 100;
+    this.headerColor = 0xa35a00;
+    this.depth = 2;
   }
 
   preload() {
-    this.generatePlaceholderTextures();
-  }
-
-  generatePlaceholderTextures() {
-    const iconSpecs = [
-      { key: "icon_pickaxe", color: 0xd0a24c },
-      { key: "icon_miner", color: 0x6fa8dc },
-      { key: "icon_cart", color: 0xb5651d },
-      { key: "icon_drill", color: 0x8e44ad },
-      { key: "icon_factory", color: 0xe74c3c },
-      { key: "icon_crystal", color: 0x1abc9c },
-    ];
-    iconSpecs.forEach((spec) => {
-      if (this.textures.exists(spec.key)) return;
-      const g = this.make.graphics({ x: 0, y: 0, add: false });
-      g.fillStyle(spec.color, 1);
-      g.fillRoundedRect(0, 0, 64, 64, 12);
-      g.lineStyle(3, 0xffffff, 0.4);
-      g.strokeRoundedRect(1.5, 1.5, 61, 61, 12);
-      g.generateTexture(spec.key, 64, 64);
-      g.destroy();
-    });
+    this.load.image("close", "assets/sprites/close.png");
+    this.load.image("crypto_coin", "assets/sprites/crypto_coin.png");
   }
 
   create() {
     const gameState = LocalStorageManager.loadGameState();
-    const { width, height } = this.scale;
-    const headerHeight = this.shop_header_height;
-    const listContentHeight =
-      UPGRADE_DEFS.length * (this.rowHeight + this.rowPadding) +
-      this.rowPadding;
-    const viewportHeight = height - headerHeight;
-    this.maxScroll = Math.max(0, listContentHeight - viewportHeight);
+    // const { width, height } = this.scale;
+    // const headerHeight = this.shopHeaderHeight;
+    // const listContentHeight =
+    //   UPGRADE_DEFS.length * (this.rowHeight + this.rowPadding) +
+    //   this.rowPadding;
+    // const viewportHeight = height - headerHeight;
+    // this.maxScroll = Math.max(0, listContentHeight - viewportHeight);
 
-    this.levels = gameState.levels;
-    UPGRADE_DEFS.forEach((def) => {
-      if (this.levels[def.id] === undefined) this.levels[def.id] = 0;
-    });
-    gameState.levels = this.levels;
-    LocalStorageManager.updateGameState(gameState);
+    // this.levels = gameState.levels;
+    // UPGRADE_DEFS.forEach((def) => {
+    //   if (this.levels[def.id] === undefined) this.levels[def.id] = 0;
+    // });
+    // gameState.levels = this.levels;
+    // LocalStorageManager.updateGameState(gameState);
 
     this.#header();
     this.#scrollableListContainer();
-    this.refreshAllRows();
-    this.time.addEvent({
-      delay: 1000,
-      loop: true,
-      callback: () => {
-        this.refreshAllRows();
-      },
-    });
-    PassiveIncome.init(this);
+    this.refreshUi();
+    // this.refreshAllRows();
+    // this.time.addEvent({
+    //   delay: 1000,
+    //   loop: true,
+    //   callback: () => {
+    //     this.refreshAllRows();
+    //   },
+    // });
+    // PassiveIncome.init(this);
   }
 
   #header() {
     const { width, height } = this.scale;
-    const headerHeight = this.shop_header_height;
+    const headerHeight = this.shopHeaderHeight;
+    const gameState = LocalStorageManager.loadGameState();
+    // background
     this.add
-      .rectangle(0, 0, width, headerHeight, config.colors.shop_header)
+      .rectangle(0, 0, width, headerHeight, this.headerColor)
       .setOrigin(0, 0)
-      .setDepth(10);
+      .setDepth(this.depth);
+
+    // coins
+    const coinSprite = this.add
+      .sprite(0, 0, "coin")
+      .setOrigin(0)
+      .setScale(0.035)
+      .setDepth(this.depth);
+    this.score = this.add
+      .text(
+        coinSprite.displayWidth,
+        0,
+        `${Utils.truncateNumber(gameState.coins)}`,
+        {
+          fontSize: "32px",
+          fill: "#ffffff",
+          fontFamily: "doge_sans",
+          resolution: 2,
+          fontStyle: "bold",
+          stroke: "#000000",
+          strokeThickness: 4,
+        },
+      )
+      .setOrigin(0)
+      .setDepth(this.depth);
+
+    // back button
+    const backButtonAction = () => {
+      this.scene.start("MainScene");
+    };
+    const backButton = new Button(this, 0, 0, "close", backButtonAction);
+    backButton.object
+      .setOrigin(0)
+      .setScale(0.25)
+      .setPosition(width - backButton.object.displayWidth, 0)
+      .setDepth(this.depth);
+
+    // shop text
     this.add
       .text(width / 2, 30, "SHOP", {
         fontSize: "54px",
         fill: "#ffffff",
-        fontFamily: "doodle_font",
+        fontFamily: "doge_sans",
         fontStyle: "bold",
         stroke: "#000000",
-        strokeThickness: 4,
-        letterSpacing: 10,
+        strokeThickness: 8,
+        letterSpacing: 5,
       })
       .setOrigin(0.5)
-      .setDepth(11);
+      .setDepth(this.depth);
 
+    // stats
     this.coinsText = this.add
       .text(width / 2, 80, "", {
         fontSize: "28px",
         fill: "#ffffff",
-        fontFamily: "doodle_font",
+        fontFamily: "doge_sans",
         resolution: 2,
         fontStyle: "bold",
         stroke: "#000000",
@@ -167,36 +123,45 @@ export class ShopScene extends Phaser.Scene {
         letterSpacing: 3,
       })
       .setOrigin(0.5)
-      .setDepth(11);
-
-    const backButton = new Buttton(this, 0, 0, "close");
-    backButton.object.setOrigin(0);
-    backButton.object.setDepth(12);
-    backButton.object.setScale(0.7);
-    backButton.object.on("pointerup", () => {
-      this.scene.start("MainScene");
-    });
+      .setDepth(this.depth);
   }
 
   #scrollableListContainer() {
     const { width, height } = this.scale;
-    const headerHeight = this.shop_header_height;
-    this.listContainer = this.add.container(0, headerHeight);
-    this.rowRefs = [];
-    UPGRADE_DEFS.forEach((def, index) => {
-      const rowY = index * (this.rowHeight + this.rowPadding) + this.rowPadding;
-      this.buildUpgradeRow(def, rowY, width);
-    });
+    const gameState = LocalStorageManager.loadGameState();
 
-    const listContentHeight =
-      UPGRADE_DEFS.length * (this.rowHeight + this.rowPadding) +
-      this.rowPadding;
-    const viewportHeight = height - headerHeight;
-    this.maxScroll = Math.max(0, listContentHeight - viewportHeight);
+    const rowHeight = 100;
+    const shop = new ShopList(
+      this,
+      0,
+      rowHeight,
+      width,
+      height - rowHeight,
+      SHOP_ITEMS,
+      {
+        depth: 0,
+        rowHeight: rowHeight,
+        rowPadding: 0,
+        getCurrency: () => gameState.coins,
+        onBuy: (item) => {
+          gameState.coins -= Utils.getItemCost(item);
+          const itemRef = gameState.items.find((it) => it.id === item.id);
+          itemRef.owned++;
+          item.effect(gameState)
+          LocalStorageManager.updateGameState(gameState);
+          shop.refresh();
+          this.refreshUi();
+        },
+      },
+    );
+  }
 
-    this.input.on("wheel", (pointer, gameObjects, dx, dy) => {
-      this.scrollList(dy * 0.6);
-    });
+  refreshUi() {
+    const gameState = LocalStorageManager.loadGameState();
+    this.coinsText.setText(
+      `+${gameState.coinsPerClick}/click, +${gameState.coinsPerSecond}/sec`,
+    );
+    this.score.setText(`${Utils.truncateNumber(gameState.coins)}`);
   }
 
   buildUpgradeRow(def, y, width) {
@@ -205,7 +170,7 @@ export class ShopScene extends Phaser.Scene {
     const rowX = 12;
 
     const panel = this.add
-      .rectangle(rowX, 0, rowWidth, this.rowHeight, config.colors.shop_header)
+      .rectangle(rowX, 0, rowWidth, this.rowHeight, this.headerColor)
       .setOrigin(0, 0)
       .setStrokeStyle(3, 0x000000);
     rowContainer.add(panel);
@@ -327,9 +292,8 @@ export class ShopScene extends Phaser.Scene {
 
   refreshAllRows() {
     const gameState = LocalStorageManager.loadGameState();
-    this.coinsText.setText(
-      `coins: ${Math.floor(gameState.coins)}   (+${gameState.coinsPerClick}/click, +${gameState.coinsPerSecond}/sec)`,
-    );
+
+    // stats
 
     this.rowRefs.forEach((row) => {
       const cost = this.getCurrentCost(row.def);
@@ -346,14 +310,14 @@ export class ShopScene extends Phaser.Scene {
   }
 
   scrollList(deltaY) {
-    const headerHeight = this.shop_header_height;
+    const headerHeight = this.shopHeaderHeight;
     const currentOffset = this.listContainer.y - headerHeight;
     const newOffset = currentOffset - deltaY; // Invert because Y increases downward
     this.setListScrollPosition(newOffset);
   }
 
   setListScrollPosition(desiredOffset) {
-    const headerHeight = this.shop_header_height;
+    const headerHeight = this.shopHeaderHeight;
     const clampedOffset = Phaser.Math.Clamp(desiredOffset, -this.maxScroll, 0);
 
     this.listContainer.y = headerHeight + clampedOffset;

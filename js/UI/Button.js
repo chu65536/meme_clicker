@@ -1,5 +1,5 @@
-export class Buttton {
-  constructor(scene, x, y, sprite) {
+export class Button {
+  constructor(scene, x, y, sprite, action) {
     this.button = scene.add.image(x, y, sprite).setInteractive();
     this.button
       .on("pointerover", () => {
@@ -7,7 +7,8 @@ export class Buttton {
       })
       .on("pointerout", () => {
         this.button.clearTint();
-      });
+      })
+      .on("pointerup", action);
   }
 
   get object() {

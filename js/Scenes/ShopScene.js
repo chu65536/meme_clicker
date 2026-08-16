@@ -1,7 +1,7 @@
 import { LocalStorageManager } from "../Managers/LocalStorageManager.js";
 import config from "../Config.js";
 import { Button } from "../UI/Button.js";
-import { ShopList } from "../ShopList.js";
+import { ShopList } from "../UI/ShopList.js";
 import { SHOP_ITEMS } from "../ShopItems.js";
 import { Utils } from "../Utils/Utils.js";
 
@@ -116,6 +116,10 @@ export class ShopScene extends Phaser.Scene {
           const itemRef = gameState.items.find((it) => it.id === item.id);
           itemRef.owned++;
           item.effect(gameState);
+          if (item.unlocked == false) {
+            item.unlocked = true;
+            itemRef.unlocked = true;
+          }
           LocalStorageManager.updateGameState(gameState);
           shop.refresh();
           this.refreshUi();
@@ -127,7 +131,7 @@ export class ShopScene extends Phaser.Scene {
   refreshUi() {
     const gameState = LocalStorageManager.loadGameState();
     this.coinsText.setText(
-      `+${Utils.truncateNumber(gameState.coinsPerClick)}/click, +${Utils.truncateNumber(gameState.coinsPerSecond)}/sec`,
+      `+${Utils.truncateNumber(gameState.baseCoinsPerClick)}/click, +${Utils.truncateNumber(gameState.coinsPerSecond)}/sec`,
     );
     this.score.setText(`${Utils.truncateNumber(gameState.coins)}`);
   }

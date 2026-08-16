@@ -1,5 +1,5 @@
-import { LocalStorageManager } from "./Managers/LocalStorageManager.js";
-import { Utils } from "./Utils/Utils.js";
+import { LocalStorageManager } from "../Managers/LocalStorageManager.js";
+import { Utils } from "../Utils/Utils.js";
 
 export class ShopList {
   constructor(scene, x, y, width, height, items, options = {}) {
@@ -98,24 +98,20 @@ export class ShopList {
       .setOrigin(0, 0)
       .setInteractive({ useHandCursor: true });
     const btnText = scene.add
-      .text(
-        btnX + btnWidth / 2,
-        btnY + btnHeight / 2,
-        Utils.truncateNumber(Utils.getItemCost(item)),
-        {
-          fontSize: "20px",
-          fill: "#ffffff",
-          fontFamily: "doge_sans",
-          fontStyle: "bold",
-          stroke: "#000000",
-          strokeThickness: 4,
-        },
-      )
+      .text(btnX + btnWidth / 2, btnY + btnHeight / 2, "", {
+        fontSize: "20px",
+        fill: "#ffffff",
+        fontFamily: "doge_sans",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 4,
+      })
       .setOrigin(0.5);
     objects.push(btnBg, btnText);
 
+    this._setBuyButtonText(btnText, item);
     btnBg.on("pointerdown", () => {
-      if (LocalStorageManager.loadGameState().coins >= Utils.getItemCost(item)) {
+      if (this._isAffordable(item)) {
         this.onBuy(item);
       }
     });
@@ -139,26 +135,41 @@ export class ShopList {
   }
 
   _nameLabel(item) {
-    const itemLocalStorageData = LocalStorageManager.getItemData(item);
-    return itemLocalStorageData.owned
-      ? `${item.name} (x${itemLocalStorageData.owned})`
+    const localStorageItemData = LocalStorageManager.getItemData(item);
+    return localStorageItemData.owned
+      ? `${item.name} (x${localStorageItemData.owned})`
       : item.name;
   }
 
   _updateAffordability(row) {
-    const gameState = LocalStorageManager.loadGameState()
-    const affordable = gameState.coins >= Utils.getItemCost(row.item);
+    const affordable = this._isAffordable(row.item);
     row.btnBg.setFillStyle(affordable ? 0x3d8b3d : 0x555555);
     row.btnBg.setAlpha(affordable ? 1 : 0.6);
     row.btnText.setAlpha(affordable ? 1 : 0.6);
   }
 
+  _setBuyButtonText(buttonText, item) {
+    const localStorageItemData = LocalStorageManager.getItemData(item);
+    if (localStorageItemData.unlocked) {
+      buttonText.setText("Unlocked");
+    } else {
+      buttonText.setText(Utils.truncateNumber(Utils.getItemCost(item)));
+    }
+  }
+
+  _isAffordable(item) {
+    const gameState = LocalStorageManager.loadGameState();
+    const localStorageItemData = LocalStorageManager.getItemData(item);
+    return (
+      !localStorageItemData.unlocked &&
+      gameState.coins >= Utils.getItemCost(item)
+    );
+  }
+
   refresh() {
     this.rows.forEach((row) => {
       row.nameText.setText(this._nameLabel(row.item));
-      row.btnText.setText(
-        `${Utils.truncateNumber(Utils.getItemCost(row.item))}`,
-      );
+      this._setBuyButtonText(row.btnText, row.item);
       this._updateAffordability(row);
     });
   }

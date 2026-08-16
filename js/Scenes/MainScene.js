@@ -8,6 +8,7 @@ import { Button } from "../UI/Button.js";
 import { ClickCoin } from "../ClickCoin.js";
 import { FadingCirclesAnimation } from "../Animations/FadingCirclesAnimation.js";
 import { Utils } from "../Utils/Utils.js";
+import { StreakBar } from "../UI/StreakBar.js";
 
 export class MainScene extends Phaser.Scene {
   constructor() {
@@ -19,6 +20,10 @@ export class MainScene extends Phaser.Scene {
     this.load.image("shop", "assets/sprites/shop.png");
     this.load.image("close", "assets/sprites/close.png");
     this.load.image("crypto_coin", "assets/sprites/crypto_coin.png");
+    this.load.image("paws", "assets/sprites/paws.png");
+    this.load.image("strong", "assets/sprites/strong.png");
+    this.load.image("weak", "assets/sprites/weak.png");
+    this.load.image("thug", "assets/sprites/thug.png");
 
     this.load.audio("click", "assets/sounds/click.wav");
 
@@ -38,7 +43,9 @@ export class MainScene extends Phaser.Scene {
     const currentGameState = LocalStorageManager.loadGameState();
 
     this.graphics.clear();
-    this.circleAnimation.anim(this.graphics);
+    if (currentGameState.coinsPerSecond > 0) {
+      this.circleAnimation.anim(this.graphics);
+    }
     this.score.setText(`${Utils.truncateNumber(currentGameState.coins)}`);
   }
 
@@ -48,9 +55,25 @@ export class MainScene extends Phaser.Scene {
       loop: true,
       callback: () => {
         const gameState = LocalStorageManager.loadGameState();
-        if (!gameState.coinsPerSecond) return;
-        gameState.coins += gameState.coinsPerSecond;
-        new ClickCoin(this, gameState.coinsPerSecond);
+        // passive income
+        if (gameState.coinsPerSecond > 0) {
+          gameState.coins += gameState.coinsPerSecond;
+          new ClickCoin(this, gameState.coinsPerSecond);
+        }
+        // streak
+        if (gameState.isStreakUnlocked) {
+          gameState.streakProgress = Math.max(
+            0,
+            gameState.streakProgress - config.game.streakDecaySpeed,
+          );
+          const streakBarValue = Math.min(101, gameState.streakProgress);
+          gameState.streakProgress = streakBarValue; // clamp 0 101
+          this.streakBar.setProgress(streakBarValue / 100);
+          gameState.coinsPerClickMultiplier = Math.max(
+            1.0,
+            streakBarValue / 50,
+          );
+        }
         LocalStorageManager.updateGameState(gameState);
       },
     });
@@ -91,6 +114,18 @@ export class MainScene extends Phaser.Scene {
       .setScale(0.1)
       .setOrigin(0)
       .setPosition(width - shopButton.object.displayWidth, 0);
+
+    if (gameState.isStreakUnlocked) {
+      const barHeight = 40;
+      const sideOffset = 40;
+      const radius = 0;
+      this.streakBar = new StreakBar(this, width / 2, height - barHeight, {
+        width: width - sideOffset,
+        height: barHeight,
+        radius: radius,
+      });
+      this.streakBar.setProgress(gameState.streakProgress / 100);
+    }
   }
 
   #initSounds() {

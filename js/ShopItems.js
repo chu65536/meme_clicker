@@ -1,20 +1,20 @@
 export const SHOP_ITEMS = [
   {
-    id: "test1",
-    name: "test_1",
+    id: "paws",
+    name: "I have little paws",
     description: "+1 coins per click",
-    sprite: "crypto_coin",
+    sprite: "paws",
     baseCost: 25,
     costMultiplier: 1.15,
     effect: (state) => {
-      state.coinsPerClick += 1;
+      state.baseCoinsPerClick += 1;
     },
   },
   {
-    id: "test2",
-    name: "test_2",
+    id: "thug",
+    name: "Business, baby!",
     description: "+1 coins per second",
-    sprite: "fist",
+    sprite: "thug",
     baseCost: 50,
     costMultiplier: 1.15,
     effect: (state) => {
@@ -22,14 +22,15 @@ export const SHOP_ITEMS = [
     },
   },
   {
-    id: "test3",
-    name: "test_3",
-    description: "+1 coins per click",
-    sprite: "fist",
-    baseCost: 100,
-    costMultiplier: 1.15,
+    id: "streak",
+    name: "I am strong",
+    description: "Unlock streaks (click more, gain up to 2x!)",
+    sprite: "strong",
+    baseCost: 1000,
+    costMultiplier: 1,
+    unlocked: false,
     effect: (state) => {
-      state.coinsPerClick += 1;
+      state.isStreakUnlocked = true;
     },
   },
   {

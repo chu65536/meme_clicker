@@ -37,8 +37,13 @@ export class MainClicker {
   click() {
     SoundManager.playSound("click");
     const gameState = LocalStorageManager.loadGameState();
-    new ClickCoin(this.scene, gameState.coinsPerClick);
-    gameState.coins += gameState.coinsPerClick;
+    const clickValue =
+      gameState.baseCoinsPerClick * gameState.coinsPerClickMultiplier;
+    gameState.coins += clickValue;
+    new ClickCoin(this.scene, clickValue);
+    if (gameState.isStreakUnlocked) {
+      gameState.streakProgress += config.game.streakIncreaseSpeed;
+    }
     LocalStorageManager.updateGameState(gameState);
   }
 }

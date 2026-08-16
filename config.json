@@ -1,7 +1,9 @@
 {
   "game": {
     "height": 800,
-    "width": 600
+    "width": 600,
+    "streakDecaySpeed": 1,
+    "streakIncreaseSpeed": 1
   },
   "clicker": {
     "size": 250

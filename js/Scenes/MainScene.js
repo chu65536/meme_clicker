@@ -6,7 +6,7 @@ import { SoundManager } from "../Managers/SoundManager.js";
 import { LocalStorageManager } from "../Managers/LocalStorageManager.js";
 import { Button } from "../UI/Button.js";
 import { ClickCoin } from "../ClickCoin.js";
-import { FadingCirclesAnimation } from "../Animations/MainMenuCirclesAnimation.js";
+import { FadingCirclesAnimation } from "../Animations/FadingCirclesAnimation.js";
 import { Utils } from "../Utils/Utils.js";
 
 export class MainScene extends Phaser.Scene {
@@ -17,6 +17,8 @@ export class MainScene extends Phaser.Scene {
     this.load.image("clicker", "assets/sprites/clicker.png");
     this.load.image("coin", "assets/sprites/coin.png");
     this.load.image("shop", "assets/sprites/shop.png");
+    this.load.image("close", "assets/sprites/close.png");
+    this.load.image("crypto_coin", "assets/sprites/crypto_coin.png");
 
     this.load.audio("click", "assets/sounds/click.wav");
 
@@ -26,10 +28,21 @@ export class MainScene extends Phaser.Scene {
   create() {
     this.graphics = this.add.graphics({ add: false });
 
+    this.#initEvents();
     this.#initUi();
     this.#initSounds();
     this.circleAnimation = new FadingCirclesAnimation();
+  }
 
+  update() {
+    const currentGameState = LocalStorageManager.loadGameState();
+
+    this.graphics.clear();
+    this.circleAnimation.anim(this.graphics);
+    this.score.setText(`${Utils.truncateNumber(currentGameState.coins)}`);
+  }
+
+  #initEvents() {
     this.time.addEvent({
       delay: 1000,
       loop: true,
@@ -41,14 +54,6 @@ export class MainScene extends Phaser.Scene {
         LocalStorageManager.updateGameState(gameState);
       },
     });
-  }
-
-  update() {
-    const currentGameState = LocalStorageManager.loadGameState();
-
-    this.graphics.clear();
-    this.circleAnimation.anim(this.graphics);
-    this.score.setText(`${Utils.truncateNumber(currentGameState.coins)}`);
   }
 
   #initUi() {

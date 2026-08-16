@@ -1,5 +1,6 @@
 import config from "./Config.js";
 import { LocalStorageManager } from "./Managers/LocalStorageManager.js";
+import { Utils } from "./Utils/Utils.js";
 
 export class ClickCoin {
   constructor(scene, value) {
@@ -19,7 +20,7 @@ export class ClickCoin {
     const y = point.y;
 
     const number = scene.add
-      .text(0, 0, `+${value}`, {
+      .text(0, 0, `+${Utils.truncateNumber(value)}`, {
         fontSize: "32px",
         fill: "#ffffff",
         fontFamily: "doge_sans",

@@ -7,6 +7,9 @@ Thanks [Claude](https://claude.com/) for the code and [Deepseek](https://chat.de
 
 ## How to run
 
+**App will take some time to load on first launch!  
+If you see just orange screen, wait a little bit**
+
 Since this is CDN project, deployed in pages  
 Direct link: https://chu65536.github.io/meme_clicker/
 

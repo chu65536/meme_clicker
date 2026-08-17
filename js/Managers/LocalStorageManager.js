@@ -21,8 +21,8 @@ export class LocalStorageManager {
   static loadGameState() {
     const localSotrageData = this.#loadData("gameState");
     if (!localSotrageData) {
-      return new GameState();
-      this.#saveData("gameState", this.gameState);
+      const newGameState = new GameState();
+      this.#saveData("gameState", newGameState);
     } else {
       return this.#loadData("gameState");
     }

@@ -9,6 +9,8 @@ import { ClickCoin } from "../ClickCoin.js";
 import { FadingCirclesAnimation } from "../Animations/FadingCirclesAnimation.js";
 import { Utils } from "../Utils/Utils.js";
 import { StreakBar } from "../UI/StreakBar.js";
+import { CoinsUI } from "../UI/CoinsUI.js";
+import { AdsBanner } from "../UI/AdsBanner.js";
 
 export class MainScene extends Phaser.Scene {
   constructor() {
@@ -24,6 +26,8 @@ export class MainScene extends Phaser.Scene {
     this.load.image("strong", "assets/sprites/strong.png");
     this.load.image("weak", "assets/sprites/weak.png");
     this.load.image("thug", "assets/sprites/thug.png");
+    this.load.image("bite", "assets/sprites/bite.png");
+    this.load.image("plus", "assets/sprites/plus.png");
 
     this.load.audio("click", "assets/sounds/click.wav");
 
@@ -46,7 +50,7 @@ export class MainScene extends Phaser.Scene {
     if (currentGameState.coinsPerSecond > 0) {
       this.circleAnimation.anim(this.graphics);
     }
-    this.score.setText(`${Utils.truncateNumber(currentGameState.coins)}`);
+    this.coinsUi.updateText(`${Utils.truncateNumber(currentGameState.coins)}`);
   }
 
   #initEvents() {
@@ -58,7 +62,7 @@ export class MainScene extends Phaser.Scene {
         // passive income
         if (gameState.coinsPerSecond > 0) {
           gameState.coins += gameState.coinsPerSecond;
-          new ClickCoin(this, gameState.coinsPerSecond);
+          new ClickCoin(this, gameState.coinsPerSecond, false);
         }
         // streak
         if (gameState.isStreakUnlocked) {
@@ -85,26 +89,7 @@ export class MainScene extends Phaser.Scene {
 
     this.mainClicker = new MainClicker(this, this.graphics);
 
-    const coinSprite = this.add
-      .sprite(0, 0, "coin")
-      .setOrigin(0)
-      .setScale(0.035);
-    this.score = this.add
-      .text(
-        coinSprite.displayWidth,
-        0,
-        `${Utils.truncateNumber(gameState.coins)}`,
-        {
-          fontSize: "32px",
-          fill: "#ffffff",
-          fontFamily: "doge_sans",
-          resolution: 2,
-          fontStyle: "bold",
-          stroke: "#000000",
-          strokeThickness: 4,
-        },
-      )
-      .setOrigin(0);
+    this.coinsUi = new CoinsUI(this);
 
     const shopButtonAction = () => {
       this.scene.start("ShopScene");
@@ -119,13 +104,21 @@ export class MainScene extends Phaser.Scene {
       const barHeight = 40;
       const sideOffset = 40;
       const radius = 0;
-      this.streakBar = new StreakBar(this, width / 2, height - barHeight, {
-        width: width - sideOffset,
-        height: barHeight,
-        radius: radius,
-      });
+      const bottomOffset = 50;
+      this.streakBar = new StreakBar(
+        this,
+        width / 2,
+        height - barHeight - bottomOffset,
+        {
+          width: width - sideOffset,
+          height: barHeight,
+          radius: radius,
+        },
+      );
       this.streakBar.setProgress(gameState.streakProgress / 100);
     }
+
+    new AdsBanner(this);
   }
 
   #initSounds() {

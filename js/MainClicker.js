@@ -37,13 +37,23 @@ export class MainClicker {
   click() {
     SoundManager.playSound("click");
     const gameState = LocalStorageManager.loadGameState();
-    const clickValue =
+    let clickValue =
       gameState.baseCoinsPerClick * gameState.coinsPerClickMultiplier;
     gameState.coins += clickValue;
-    new ClickCoin(this.scene, clickValue);
+
+    // crits
+    let isCrit = false;
+    if (gameState.isCritsUnlocked) {
+      if (Math.random() <= gameState.critChance) {
+        isCrit = true;
+        clickValue *= gameState.critMultiplier;
+      }
+    }
+    // streaks
     if (gameState.isStreakUnlocked) {
       gameState.streakProgress += config.game.streakIncreaseSpeed;
     }
+    new ClickCoin(this.scene, clickValue, isCrit);
     LocalStorageManager.updateGameState(gameState);
   }
 }

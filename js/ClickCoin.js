@@ -3,7 +3,7 @@ import { LocalStorageManager } from "./Managers/LocalStorageManager.js";
 import { Utils } from "./Utils/Utils.js";
 
 export class ClickCoin {
-  constructor(scene, value) {
+  constructor(scene, value, isCrit) {
     const gap = 20;
 
     // spawning in random place on a circle around clicker
@@ -22,7 +22,7 @@ export class ClickCoin {
     const number = scene.add
       .text(0, 0, `+${Utils.truncateNumber(value)}`, {
         fontSize: "32px",
-        fill: "#ffffff",
+        fill: isCrit ? "#ff0000" : "#ffffff",
         fontFamily: "doge_sans",
         resolution: 2,
         fontStyle: "bold",

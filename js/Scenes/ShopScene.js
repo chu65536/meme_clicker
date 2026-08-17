@@ -4,6 +4,8 @@ import { Button } from "../UI/Button.js";
 import { ShopList } from "../UI/ShopList.js";
 import { SHOP_ITEMS } from "../ShopItems.js";
 import { Utils } from "../Utils/Utils.js";
+import { CoinsUI } from "../UI/CoinsUI.js";
+import { AdsBanner } from "../UI/AdsBanner.js";
 
 export class ShopScene extends Phaser.Scene {
   constructor() {
@@ -30,28 +32,7 @@ export class ShopScene extends Phaser.Scene {
       .setDepth(this.depth);
 
     // coins
-    const coinSprite = this.add
-      .sprite(0, 0, "coin")
-      .setOrigin(0)
-      .setScale(0.035)
-      .setDepth(this.depth);
-    this.score = this.add
-      .text(
-        coinSprite.displayWidth,
-        0,
-        `${Utils.truncateNumber(gameState.coins)}`,
-        {
-          fontSize: "32px",
-          fill: "#ffffff",
-          fontFamily: "doge_sans",
-          resolution: 2,
-          fontStyle: "bold",
-          stroke: "#000000",
-          strokeThickness: 4,
-        },
-      )
-      .setOrigin(0)
-      .setDepth(this.depth);
+    this.coinsUi = new CoinsUI(this, this.depth);
 
     // back button
     const backButtonAction = () => {
@@ -92,6 +73,8 @@ export class ShopScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
       .setDepth(this.depth);
+
+    new AdsBanner(this);
   }
 
   #scrollableListContainer() {
@@ -116,6 +99,9 @@ export class ShopScene extends Phaser.Scene {
           const itemRef = gameState.items.find((it) => it.id === item.id);
           itemRef.owned++;
           item.effect(gameState);
+          if (gameState.isWin) {
+            this.scene.start("WinScene");
+          }
           if (item.unlocked == false) {
             item.unlocked = true;
             itemRef.unlocked = true;
@@ -133,6 +119,6 @@ export class ShopScene extends Phaser.Scene {
     this.coinsText.setText(
       `+${Utils.truncateNumber(gameState.baseCoinsPerClick)}/click, +${Utils.truncateNumber(gameState.coinsPerSecond)}/sec`,
     );
-    this.score.setText(`${Utils.truncateNumber(gameState.coins)}`);
+    this.coinsUi.updateText(`${Utils.truncateNumber(gameState.coins)}`);
   }
 }
